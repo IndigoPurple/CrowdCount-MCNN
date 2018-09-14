@@ -1,75 +1,60 @@
-# Single Image Crowd Counting via Multi Column Convolutional Neural Network
+### 使用MCNN进行Crowd Counting
 
-This is an unofficial implementation of CVPR 2016 paper ["Single Image Crowd Counting via Multi Column Convolutional Neural Network"](http://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Zhang_Single-Image_Crowd_Counting_CVPR_2016_paper.pdf)
+---
 
-# Installation
-1. Install pytorch
-2. Clone this repository
-  ```Shell
-  git clone https://github.com/svishwa/crowdcount-mcnn.git
-  ```
-  We'll call the directory that you cloned crowdcount-mcnn `ROOT`
+> 安志成
+>
+> github地址：https://github.com/IndigoPurple/CrowdCount-MCNN
+
+```
+本文主要基于https://github.com/svishwa/crowdcount-mcnn；
+该项目是对CVPR 2016 paper "Single Image Crowd Counting via Multi Column Convolutional Neural Network"的实现；
+我们希望使用这个已经比较成熟的模型来对我们的data set进行测试，查看其方法对我们的数据集进行crowd counting的效果如何！
+* 我们的程序对其源代码进行了改写，将其从2.7版本的python改为3.6版本
+```
+
+#### 一、 环境搭建
+
+首先要搭建深度学习的环境，本项目采用的环境配置如下：
+
+- Ubuntu16.04 （win10系统下也可）
+- python 3.6
+- anaconda
+- nvidia cuda 9.2
+- cudnn for cuda 9.2
+- pytorch
+
+```
+具体搭建过程可参考博客
+https://blog.csdn.net/Mrx_Nh/article/details/79888928
+但是一些版本应根据自己主机配置进行更改（如NVIDIA驱动）
+```
+
+#### 二、运行测试
+
+原文基于ShanghaiTech数据集进行了测试和训练，得到了较好的训练效果，我们首先测试程序能否在该数据集上正常运行。
+
+1. 运行data_preparation文件夹下的create_gt_test_set_shtech.m，生成ground_truth_csv文件
+2. 运行test.py，如果缺少相关package，添加进项目即可
+3. 如果运行成功，可在output文件夹下查看生成的density map
+4. 运行train.py，可以看到在迭代循环过程中，MSE和MAE在不断变化，待其趋于稳定后，停止程序
+
+### 三、构建自有数据集
+
+使用我们自己的采集到的视频构建数据集，构建过程主要包含以下两个MATLAB脚本：
+
+1. createImg.m 用于将视频分成图片帧
+2. getPositionInfo.m 用于标定图中head位置，生成ground_truth文件
+
+#### 四、 Fine Tune
+
+...
 
 
-# Data Setup
-1. Download ShanghaiTech Dataset from   
-   Dropbox:   https://www.dropbox.com/s/fipgjqxl7uj8hd5/ShanghaiTech.zip?dl=0
-   
-   Baidu Disk: http://pan.baidu.com/s/1nuAYslz
-2. Create Directory 
-  ```Shell
-  mkdir ROOT/data/original/shanghaitech/  
-  ```
-3. Save "part_A_final" under ROOT/data/original/shanghaitech/
-4. Save "part_B_final" under ROOT/data/original/shanghaitech/
-5. cd ROOT/data_preparation/
-
-   run create_gt_test_set_shtech.m in matlab to create ground truth files for test data
-6. cd ROOT/data_preparation/
-
-   run create_training_set_shtech.m in matlab to create training and validataion set along with ground truth files
-
-# Test
-1. Follow steps 1,2,3,4 and 5 from Data Setup
-2. Download pre-trained model files:
-
-   [[Shanghai Tech A](https://www.dropbox.com/s/8bxwvr4cj4bh5d8/mcnn_shtechA_660.h5?dl=0)]
-   
-   [[Shanghai Tech B](https://www.dropbox.com/s/kqqkl0exfshsw8v/mcnn_shtechB_110.h5?dl=0)]
-   
-   Save the model files under ROOT/final_models
-   
-3. Run test.py
-
-	a. Set save_output = True to save output density maps
-	
-	b. Errors are saved in  output directory
-
-# Training
-1. Follow steps 1,2,3,4 and 6 from Data Setup
-2. Run train.py
 
 
-# Training with TensorBoard
-With the aid of [Crayon](https://github.com/torrvision/crayon),
-we can access the visualisation power of TensorBoard for any 
-deep learning framework.
 
-To use the TensorBoard, install Crayon (https://github.com/torrvision/crayon)
-and set `use_tensorboard = True` in `ROOT/train.py`.
 
-# Other notes
-1. During training, the best model is chosen using error on the validation set. (It is not clear how the authors in the original implementation choose the best model).
-2. 10% of the training set is set asised for validation. The validation set is chosen randomly.
-3. The ground truth density maps are obtained using simple gaussian maps unlike the original method described in the paper.
-4. Following are the results on  Shanghai Tech A and B dataset:
-		
-                |     |  MAE  |   MSE  |
-                ------------------------
-                | A   |  110  |   169  |
-                ------------------------
-                | B   |   25  |    44  |
-		
-5. Also, please take a look at our new work on crowd counting using cascaded cnn and high-level prior (https://github.com/svishwa/crowdcount-cascaded-mtl),  which has improved results as compared to this work. 
-               
+
+
 
