@@ -15,7 +15,7 @@ for k = 3:fileNum %From 3 because list includes path . and ..
     frame_number=video_obj.NumberOfFrames;
 
     for i=1:frame_number
-        image_name=strcat('E:/data/img/primary_school_20180912_2/im_',num2str(i),'.jpg');
+        image_name=strcat('E:/data/img/primary_school_20180912_2/im_',num2str(k),num2str(i),'.jpg');
         frame=read(video_obj,i);
         if mod(i,10)==0
             imwrite(frame,image_name,'jpg');
