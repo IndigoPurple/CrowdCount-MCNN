@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from network import Conv2d
+from src.network import Conv2d
 
 class MCNN(nn.Module):
     '''
