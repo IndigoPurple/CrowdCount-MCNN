@@ -36,14 +36,13 @@ mse = 0.0
 
 input_video_name = '.\\data\\render_sharpen.mp4'
 cap = cv2.VideoCapture(input_video_name)
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('.\\data\\render_sharpen_density.mp4', fourcc, 10.0, (480, 270))
+out = cv2.VideoWriter('.\\data\\render_sharpen_density.avi', cv2.VideoWriter_fourcc('D','I','V','X'), 10.0, (1920, 1080), True)
 ind = 0
 
 while (True):
     ret, frame = cap.read()
     if (ret == True):
-        # frame = cv2.resize(frame, (800, 600))
+        frame = cv2.resize(frame, (960, 540))
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         img = img.astype(np.float32, copy=False)
         ht = img.shape[0]
@@ -56,11 +55,14 @@ while (True):
         density_map = density_map.data.cpu().numpy()
         et_count = np.sum(density_map)
         print(et_count)
-        density_map_color = np.uint8(255*density_map/np.max(density_map))
-        density_map_color = density_map_color[0][0]
-        density_map_color = cv2.cvtColor(density_map_color, cv2.COLOR_GRAY2BGR)
+        density_map = np.uint8(255*density_map/np.max(density_map))
+        density_map = density_map.reshape((density_map.shape[2], density_map.shape[3]))
+
+        density_map_color = cv2.cvtColor(density_map, cv2.COLOR_GRAY2BGR)
+        density_map_color = cv2.resize(density_map_color, (1920, 1080))
         out.write(density_map_color)
-        # utils.save_density_map(density_map, '', 'data\\output_%04d.png' % ind)
+
+        # cv2.imwrite('data\\output_%04d.png' % ind, density_map_color)
         ind = ind + 1
     else:
         out.release()
