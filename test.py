@@ -28,7 +28,7 @@ if not os.path.exists(output_dir):
 
 
 net = CrowdCounter()
-      
+
 trained_model = os.path.join(model_path)
 network.load_net(trained_model, net)
 net.cuda()
@@ -36,27 +36,52 @@ net.eval()
 mae = 0.0
 mse = 0.0
 
-#load test data
-data_loader = ImageDataLoader(data_path, gt_path, shuffle=False, gt_downsample=True, pre_load=True)
+img = cv2.imread('15_local_warped.jpg', 0)
 
-for blob in data_loader:                        
-    im_data = blob['data']
-    gt_data = blob['gt_density']
-    density_map = net(im_data, gt_data)
+
+input_video_name = ''
+cap = cv2.VideoCapture(input_video_name)
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
+
+while (True):
+    ret, img = cap.read()
+    img = img.astype(np.float32, copy=False)
+    ht = img.shape[0]
+    wd = img.shape[1]
+    ht_1 = int(ht/4)*4
+    wd_1 = int(wd/4)*4
+    img = cv2.resize(img,(wd_1,ht_1))
+    img = img.reshape((1,1,img.shape[0],img.shape[1]))
+    density_map = net(img)
     density_map = density_map.data.cpu().numpy()
-    gt_count = np.sum(gt_data)
     et_count = np.sum(density_map)
-    mae += abs(gt_count-et_count)
-    mse += ((gt_count-et_count)*(gt_count-et_count))
-    if vis:
-        utils.display_results(im_data, gt_data, density_map)
-    if save_output:
-        utils.save_density_map(density_map, output_dir, 'output_' + blob['fname'].split('.')[0] + '.png')
-        
-mae = mae/data_loader.get_num_samples()
-mse = np.sqrt(mse/data_loader.get_num_samples())
-print ('\nMAE: %0.2f, MSE: %0.2f' % (mae,mse))
+    print(et_count)
+    utils.save_density_map(density_map, '.', 'output.png')
 
-f = open(file_results, 'w') 
-f.write('MAE: %0.2f, MSE: %0.2f' % (mae,mse))
-f.close()
+
+
+# #load test data
+# data_loader = ImageDataLoader(data_path, gt_path, shuffle=False, gt_downsample=True, pre_load=True)
+
+# for blob in data_loader:                        
+#     im_data = blob['data']
+#     gt_data = blob['gt_density']
+#     density_map = net(im_data, gt_data)
+#     density_map = density_map.data.cpu().numpy()
+#     gt_count = np.sum(gt_data)
+#     et_count = np.sum(density_map)
+#     mae += abs(gt_count-et_count)
+#     mse += ((gt_count-et_count)*(gt_count-et_count))
+#     if vis:
+#         utils.display_results(im_data, gt_data, density_map)
+#     if save_output:
+#         utils.save_density_map(density_map, output_dir, 'output_' + blob['fname'].split('.')[0] + '.png')
+        
+# mae = mae/data_loader.get_num_samples()
+# mse = np.sqrt(mse/data_loader.get_num_samples())
+# print ('\nMAE: %0.2f, MSE: %0.2f' % (mae,mse))
+
+# f = open(file_results, 'w') 
+# f.write('MAE: %0.2f, MSE: %0.2f' % (mae,mse))
+# f.close()
